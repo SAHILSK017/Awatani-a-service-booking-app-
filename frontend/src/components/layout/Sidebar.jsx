@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Briefcase, CalendarCheck, User, Settings, Menu, X, CreditCard, Users, Activity, BarChart3, Hexagon
 } from 'lucide-react';
-import { cn } from '../ui/Button';
 
 const userMenu = [
   { name: 'Dashboard', path: '/user/home', icon: LayoutDashboard },
@@ -39,8 +38,8 @@ export const Sidebar = ({ role }) => {
 
   return (
     <>
-      <div className="md:hidden fixed top-4 left-4 z-50">
-        <button onClick={() => setIsOpen(!isOpen)} className="p-3 rounded-2xl bg-white/90 backdrop-blur-md shadow-lg border border-gray-100 text-gray-900 focus:outline-none">
+      <div className="md:hidden fixed top-3 left-4 z-50">
+        <button onClick={() => setIsOpen(!isOpen)} className="p-2.5 rounded-lg bg-background border border-border text-foreground shadow-sm focus:outline-none hover:bg-secondary">
           {isOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
@@ -48,53 +47,62 @@ export const Sidebar = ({ role }) => {
       <AnimatePresence>
         {(isOpen || window.innerWidth >= 768) && (
           <motion.aside
-            initial={{ x: -300, opacity: 0 }}
+            initial={{ x: -256, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
+            exit={{ x: -256, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={cn(
-              "fixed top-0 left-0 z-40 h-screen w-72 bg-indigo-500/10 backdrop-blur-3xl border-r border-indigo-100/50 shadow-[8px_0_30px_rgb(0,0,0,0.06)] flex flex-col transition-transform md:translate-x-0 overflow-hidden rounded-r-[2.5rem]"
-            )}
-            style={{ x: isOpen || window.innerWidth >= 768 ? 0 : -300 }}
+            className="fixed top-0 left-0 z-40 h-screen w-64 bg-background border-r border-border shadow-sm flex flex-col transition-transform md:translate-x-0 overflow-hidden"
+            style={{ x: isOpen || window.innerWidth >= 768 ? 0 : -256 }}
           >
             {/* Logo Area */}
-            <div className="p-8 pb-6 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <Hexagon className="text-white w-6 h-6" />
+            <div className="px-6 h-16 flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-violet-50/50 via-white to-indigo-50/30 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-pink-500 flex items-center justify-center shadow-md shadow-violet-500/30 text-white">
+                  <Hexagon className="w-5 h-5 fill-white/20" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xl font-black tracking-tight bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-700 bg-clip-text text-transparent">
+                    Avatani
+                  </span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest -mt-1">Services</span>
+                </div>
               </div>
-              <span className="text-3xl font-black bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent tracking-tight">
-                Avatani
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                role === 'admin' 
+                  ? 'bg-rose-100 text-rose-700 border border-rose-200' 
+                  : role === 'worker' 
+                    ? 'bg-amber-100 text-amber-700 border border-amber-200' 
+                    : 'bg-violet-100 text-violet-700 border border-violet-200'
+              }`}>
+                {role || 'User'}
               </span>
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex-1 px-5 space-y-2 overflow-y-auto mt-2 custom-scrollbar">
+            <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
               {menu.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.path}
                   onClick={() => window.innerWidth < 768 && setIsOpen(false)}
                   className={({ isActive }) =>
-                    cn(
-                      'flex items-center px-5 py-4 text-[15px] font-bold rounded-2xl transition-all duration-300 group relative',
+                    `flex items-center px-3.5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group relative ${
                       isActive
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
-                        : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent hover:border-gray-100'
-                    )
+                        ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-indigo-500/25 font-semibold'
+                        : 'text-slate-600 hover:bg-violet-50/80 hover:text-violet-900'
+                    }`
                   }
                 >
                   {({ isActive }) => (
                     <>
                       <item.icon 
-                        className={cn(
-                          "mr-4 h-[22px] w-[22px] transition-transform duration-300",
-                          isActive ? "text-white scale-110" : "text-gray-400 group-hover:text-indigo-600 group-hover:scale-110"
-                        )} 
+                        className={`mr-3 h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
+                          isActive ? "text-white" : "text-slate-500 group-hover:text-violet-600"
+                        }`} 
                       />
-                      <span className="relative z-10 tracking-wide">{item.name}</span>
-                      
+                      <span className="relative z-10">{item.name}</span>
                       {isActive && (
-                          <motion.div layoutId="activeNavIndicator" className="absolute right-3 w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                       )}
                     </>
                   )}
@@ -103,13 +111,13 @@ export const Sidebar = ({ role }) => {
             </nav>
 
             {/* Footer Connect */}
-            <div className="p-6 m-4 bg-gray-50 rounded-3xl border border-gray-100">
+            <div className="p-4 border-t border-border/60 bg-slate-50/50 shrink-0">
               <NavLink
                 to="/settings"
-                className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 hover:text-indigo-700 transition-colors group"
+                className="flex items-center px-3.5 py-2.5 text-sm font-medium text-slate-600 hover:bg-violet-50/80 hover:text-violet-900 rounded-xl transition-colors group"
               >
-                <Settings className="mr-2 h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
-                Settings & Preferences
+                <Settings className="mr-3 h-5 w-5 text-slate-500 group-hover:text-violet-600 transition-transform group-hover:rotate-45" />
+                Settings
               </NavLink>
             </div>
           </motion.aside>
@@ -119,7 +127,7 @@ export const Sidebar = ({ role }) => {
       {isOpen && (
         <motion.div 
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}

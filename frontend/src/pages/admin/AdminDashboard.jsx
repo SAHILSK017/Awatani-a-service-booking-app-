@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Badge } from '../../components/ui/Badge';
-import { Users, Briefcase, Activity, IndianRupee, Loader2 } from 'lucide-react';
+import { Users, Briefcase, Activity, IndianRupee, Loader2, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAllUsers, getAllBookings, getAllServices } from '../../services/adminService';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
+import { formatPrice } from '../../utils/helpers';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalUsers: 0, totalWorkers: 0, totalRevenue: 0, activeServices: 0 });
@@ -16,7 +19,9 @@ const AdminDashboard = () => {
         const [usersData, bookingsData, servicesData] = await Promise.all([
           getAllUsers(), getAllBookings(), getAllServices()
         ]);
-        let revenue = 0; bookingsData.forEach(b => { if (b.status === 'completed') revenue += b.service?.price || 0; });
+        let revenue = 0; 
+        bookingsData.forEach(b => { if (b.status === 'completed') revenue += b.service?.price || 0; });
+        
         const regUsers = usersData.filter(u => u.role === 'user');
         const regWorkers = usersData.filter(u => u.role === 'worker');
 
@@ -33,102 +38,157 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  const statCards = [
-    { title: 'Platform Users', value: stats.totalUsers, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-    { title: 'Workers', value: stats.totalWorkers, icon: Briefcase, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { title: 'Active Services', value: stats.activeServices, icon: Activity, color: 'text-sky-600', bg: 'bg-sky-100' },
-    { title: 'Gross Revenue', value: `₹${stats.totalRevenue}`, icon: IndianRupee, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-  ];
-
-  if (loading) return <div className="flex justify-center items-center h-screen bg-gray-50"><Loader2 className="animate-spin text-indigo-600 h-10 w-10" /></div>;
+  if (loading) return <div className="flex h-[80vh] items-center justify-center"><Loader2 className="animate-spin text-primary h-10 w-10" /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-20 font-sans">
+    <div className="w-full space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* Light Mode Command Header */}
-      <div className="relative h-96 w-full overflow-hidden shadow-xl mb-12">
-        <div className="absolute inset-0">
-            <img src="/customer_hero.png" alt="Admin Dashboard" className="w-full h-full object-cover opacity-60 mix-blend-overlay filter blur-[1px]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-transparent to-indigo-900/60" />
-        </div>
-        
-        <div className="absolute bottom-12 left-10 z-10 w-full max-w-7xl px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="px-4 py-1.5 bg-white/40 backdrop-blur-md rounded-full text-xs font-black tracking-widest text-indigo-900 mb-4 inline-block shadow-sm">ADMIN PANEL</span>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 drop-shadow-sm leading-none mb-3">Admin Dashboard</h1>
-            <p className="text-lg text-indigo-900 font-medium max-w-xl">Manage users, workers, services, and platform activity.</p>
-          </motion.div>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest mb-2 inline-block shadow-xs">Admin Control</span>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">Overview Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">Real-time platform metrics, user management, and worker operations.</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20 -mt-16">
-        
-        {/* Light Glass Stats */}
-        <motion.div initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {statCards.map((stat, idx) => (
-            <motion.div key={idx} variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } }} 
-              className={`bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/50 overflow-hidden relative group`}
-            >
-              <div className={`p-4 rounded-2xl w-max ${stat.bg} ${stat.color} mb-6 shadow-inner`}>
-                  <stat.icon className="h-8 w-8" />
-              </div>
-              <div>
-                <p className="text-gray-500 font-bold text-sm uppercase tracking-widest mb-1">{stat.title}</p>
-                <p className="text-4xl font-extrabold text-gray-900 tracking-tight">{stat.value}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Light Table: Customers */}
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white/50">
-              <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-3"><Users className="text-indigo-600"/> Registered Users</h3>
+      {/* Colorful KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="rounded-2xl p-5 border border-violet-200/80 bg-gradient-to-br from-violet-50 via-purple-50/40 to-white shadow-xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-violet-700 uppercase tracking-wider">Platform Users</h3>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-violet-500/25">
+              <Users size={18} />
             </div>
-            <div className="p-6">
-              <div className="bg-white rounded-[2rem] overflow-hidden border border-gray-50 shadow-sm">
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest font-bold">
-                      <tr><th className="px-6 py-4">User</th><th className="px-6 py-4 text-right">Role</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50 font-medium">
-                      {usersList.map((user) => (
-                        <tr key={user._id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-5"><div className="text-gray-900 font-bold">{user.name}</div><div className="text-gray-500 font-medium mt-1">{user.email}</div></td>
-                          <td className="px-6 py-5 text-right"><Badge variant="indigo" className="font-bold tracking-wider">{user.role}</Badge></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Light Table: Workers */}
-          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white/50">
-              <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-3"><Briefcase className="text-purple-600"/> Top Workers</h3>
-            </div>
-            <div className="p-6">
-               <div className="bg-white rounded-[2rem] overflow-hidden border border-gray-50 shadow-sm">
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest font-bold">
-                      <tr><th className="px-6 py-4">Worker</th><th className="px-6 py-4 text-center">Jobs Done</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50 font-medium">
-                      {workersList.map((worker) => (
-                        <tr key={worker._id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-5"><div className="text-gray-900 font-bold">{worker.name}</div><div className="text-gray-500 font-medium mt-1">{worker.email}</div></td>
-                          <td className="px-6 py-5 text-center"><Badge variant="success" className="font-bold tracking-wider">{worker.jobsCompleted}</Badge></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-               </div>
-            </div>
-          </motion.div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-slate-900">{stats.totalUsers}</p>
+            <span className="flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full"><ArrowUpRight size={12} className="mr-0.5"/> 12%</span>
+          </div>
         </div>
+
+        <div className="rounded-2xl p-5 border border-sky-200/80 bg-gradient-to-br from-sky-50 via-blue-50/40 to-white shadow-xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-sky-700 uppercase tracking-wider">Active Workers</h3>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-500/25">
+              <Briefcase size={18} />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-slate-900">{stats.totalWorkers}</p>
+            <span className="flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full"><ArrowUpRight size={12} className="mr-0.5"/> 4%</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl p-5 border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white shadow-xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Gross Revenue</h3>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/25">
+              <IndianRupee size={18} />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-slate-900">{formatPrice(stats.totalRevenue)}</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl p-5 border border-amber-200/80 bg-gradient-to-br from-amber-50 via-orange-50/40 to-white shadow-xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider">Active Services</h3>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shadow-md shadow-amber-500/25">
+              <Activity size={18} />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-slate-900">{stats.activeServices}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Users Table */}
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Users size={16} className="text-muted-foreground"/> Recent Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 flex-1">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User Details</TableHead>
+                  <TableHead className="text-right">Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {usersList.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground">{user.name}</span>
+                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant="primary">{user.role}</Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {usersList.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground py-8">No users found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Workers Table */}
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Briefcase size={16} className="text-muted-foreground"/> Top Workers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 flex-1">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Worker Details</TableHead>
+                  <TableHead className="text-right">Jobs Completed</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {workersList.map((worker) => (
+                  <TableRow key={worker._id}>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground">{worker.name}</span>
+                        <span className="text-xs text-muted-foreground">{worker.email}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center gap-1.5">
+                        <CheckCircle2 size={14} className="text-success" />
+                        <span className="font-bold">{worker.jobsCompleted}</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {workersList.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground py-8">No workers found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   );

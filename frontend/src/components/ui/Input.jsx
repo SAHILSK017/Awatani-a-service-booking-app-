@@ -10,14 +10,14 @@ export const Input = React.forwardRef(({ className, icon: Icon, ...props }, ref)
   return (
     <div className="relative flex items-center w-full">
       {Icon && (
-        <div className="absolute left-3 text-gray-400">
+        <div className="absolute left-3 text-muted-foreground">
           <Icon size={18} />
         </div>
       )}
       <input
         ref={ref}
         className={cn(
-          'w-full rounded-2xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500',
+          'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
           Icon && 'pl-10',
           className
         )}

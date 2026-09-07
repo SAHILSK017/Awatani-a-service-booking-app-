@@ -1,105 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --border-color: #f1f5f9;
-  --sidebar-bg: rgba(99, 102, 241, 0.05);
-  --bg-gradient: radial-gradient(circle at top left, rgba(129, 140, 248, 0.18), transparent 28%),
-                 radial-gradient(circle at top right, rgba(244, 114, 182, 0.12), transparent 22%),
-                 linear-gradient(180deg, #f8fafc 0%, #eef2ff 46%, #f8fafc 100%);
+@layer base {
+  :root {
+    --background: #f8fafc; /* neutral off-white/light gray */
+    --foreground: #0f172a; /* deep navy/charcoal */
+    
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #7c3aed;
+    
+    --primary: #7c3aed; /* Existing brand purple / slightly modernized */
+    --primary-foreground: #ffffff;
+    --primary-hover: #6d28d9;
+    
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    
+    --accent: #f8fafc;
+    --accent-foreground: #0f172a;
+    
+    --success: #16a34a; /* Green */
+    --success-foreground: #ffffff;
+    
+    --warning: #d97706; /* Amber */
+    --warning-foreground: #ffffff;
+    
+    --danger: #dc2626; /* Red */
+    --danger-foreground: #ffffff;
+    
+    --info: #2563eb; /* Blue */
+    --info-foreground: #ffffff;
+    
+    --radius: 0.75rem; /* ~12px for cards */
+  }
 }
 
-.theme-dark {
-  color-scheme: dark;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --card-bg: rgba(30, 41, 59, 0.85);
-  --border-color: rgba(51, 65, 85, 0.5);
-  --sidebar-bg: rgba(15, 23, 42, 0.6);
-  --bg-gradient: radial-gradient(circle at top left, rgba(129, 140, 248, 0.15), transparent 30%),
-                 radial-gradient(circle at top right, rgba(168, 85, 247, 0.1), transparent 25%),
-                 linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-}
-
-.theme-amber {
-  color-scheme: light;
-  --text-main: #451a03;
-  --text-muted: #9a3412;
-  --card-bg: rgba(254, 253, 246, 0.95);
-  --border-color: #fef08a;
-  --sidebar-bg: rgba(217, 119, 6, 0.08);
-  --bg-gradient: radial-gradient(circle at top left, rgba(251, 191, 36, 0.22), transparent 32%),
-                 radial-gradient(circle at top right, rgba(252, 211, 77, 0.15), transparent 25%),
-                 linear-gradient(180deg, #fffbeb 0%, #fef3c7 46%, #fffbeb 100%);
-}
-
-html,
-body,
-#root {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--bg-gradient) !important;
-  color: var(--text-main) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-::selection {
-  background: rgba(99, 102, 241, 0.18);
-}
-
-/* Master Glassmorphic panel styling overrides */
-.bg-white {
-  background-color: var(--card-bg) !important;
-  color: var(--text-main) !important;
-  border-color: var(--border-color) !important;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-.text-gray-900 {
-  color: var(--text-main) !important;
-}
-
-.text-gray-500, .text-gray-600 {
-  color: var(--text-muted) !important;
-}
-
-.border-gray-50, .border-gray-100, .border-gray-200 {
-  border-color: var(--border-color) !important;
-}
-
-aside {
-  background-color: var(--sidebar-bg) !important;
-  border-color: var(--border-color) !important;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-nav .hover\:bg-white:hover {
-  background-color: var(--card-bg) !important;
-}
-
-@layer utilities {
-  .bg-app {
-    background: var(--bg-gradient) !important;
+@layer base {
+  * {
+    border-color: var(--border);
+    box-sizing: border-box;
+  }
+  
+  html, body, #root {
+    height: 100%;
   }
 
-  .shadow-soft {
-    box-shadow:
-      0 18px 45px rgba(15, 23, 42, 0.06),
-      0 2px 12px rgba(99, 102, 241, 0.05);
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
   }
+}
+
+/* Subtle scrollbar for SaaS look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }

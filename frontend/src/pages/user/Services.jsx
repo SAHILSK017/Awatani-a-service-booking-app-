@@ -37,95 +37,127 @@ const Services = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="w-full space-y-8 pb-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* Massive Hero Image Section */}
-      <div className="relative h-96 w-full bg-slate-900 overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0">
-          <img src="/customer_hero.png" alt="Premium Header" className="w-full h-full object-cover opacity-50 mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-transparent to-indigo-900/60" />
-        </div>
+      {/* Vibrant Hero Section */}
+      <section className="rounded-3xl p-8 md:p-10 border border-violet-400/30 shadow-xl shadow-indigo-500/10 bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 text-white relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute right-10 -bottom-10 w-64 h-64 rounded-full bg-cyan-400/20 blur-2xl pointer-events-none" />
         
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 text-center pt-10">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4 drop-shadow-lg">
-              Explore Services
-            </h1>
-            <p className="text-xl text-indigo-50 font-medium max-w-2xl mx-auto shadow-sm">
-              Search and filter our elite catalog of verified professionals.
-            </p>
-          </motion.div>
+        <div className="relative z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold uppercase tracking-wider mb-4 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Verified Service Providers
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3 drop-shadow-sm">
+            Explore Services
+          </h1>
+          <p className="text-indigo-100 text-base sm:text-lg max-w-xl font-normal leading-relaxed">
+            Browse our full catalog of professional home repair, installation, and cleaning services.
+          </p>
+        </div>
+      </section>
+
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row gap-3 items-center">
+        <div className="relative flex-1 w-full">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <Search size={18} />
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search for AC repair, plumbing, carpentry..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-sm font-medium text-slate-900" 
+          />
+        </div>
+
+        <div className="relative w-full md:w-64">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <Layers size={18} />
+          </div>
+          <select 
+            value={selectedCategory} 
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-sm font-semibold text-slate-700 cursor-pointer appearance-none"
+          >
+            <option value="">All Categories ({services.length})</option>
+            {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
+          </select>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20 -mt-10">
-        
-        {/* Floating Filters */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/90 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-white/50 mb-12 flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1 w-full relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-600 transition-colors">
-                    <Search size={20} />
-                </div>
-                <input type="text" placeholder="Search for anything..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50/50 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-gray-900" />
-            </div>
+      {/* Services Grid */}
+      <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredServices.length > 0 ? (
+          filteredServices.map((service) => {
+            const catName = (service.category?.name || '').toLowerCase();
+            let theme = { 
+              border: 'border-violet-200 hover:border-violet-400', 
+              badge: 'bg-violet-50 text-violet-700 border-violet-200', 
+              iconBg: 'from-violet-600 to-indigo-600' 
+            };
+            if (catName.includes('plumb')) theme = { border: 'border-cyan-200 hover:border-cyan-400', badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', iconBg: 'from-cyan-500 to-blue-600' };
+            else if (catName.includes('electr')) theme = { border: 'border-amber-200 hover:border-amber-400', badge: 'bg-amber-50 text-amber-700 border-amber-200', iconBg: 'from-amber-500 to-yellow-500' };
+            else if (catName.includes('carpent')) theme = { border: 'border-orange-200 hover:border-orange-400', badge: 'bg-orange-50 text-orange-700 border-orange-200', iconBg: 'from-orange-500 to-amber-600' };
+            else if (catName.includes('ac') || catName.includes('repair')) theme = { border: 'border-teal-200 hover:border-teal-400', badge: 'bg-teal-50 text-teal-700 border-teal-200', iconBg: 'from-teal-500 to-emerald-600' };
+            else if (catName.includes('clean')) theme = { border: 'border-emerald-200 hover:border-emerald-400', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', iconBg: 'from-emerald-500 to-teal-600' };
 
-            <div className="relative w-full md:w-64 group pl-4 md:pl-0 border-l border-gray-100 hidden md:block" />
+            return (
+              <motion.div 
+                key={service._id} 
+                variants={itemVariants} 
+                className={`group rounded-2xl bg-white border ${theme.border} shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer hover:-translate-y-1 relative overflow-hidden`}
+                onClick={() => navigate('/user/booking', { state: { selectedService: service } })}
+              >
+                <div className={`h-1.5 w-full bg-gradient-to-r ${theme.iconBg}`} />
 
-            <div className="relative w-full md:w-72 flex-shrink-0 group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-600 transition-colors">
-                    <Layers size={20} />
-                </div>
-                <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50/50 border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-gray-900 appearance-none cursor-pointer">
-                  <option value="">All Categories</option>
-                  {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
-                </select>
-            </div>
-        </motion.div>
-
-        {/* Services Grid matching Home */}
-        <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredServices.length > 0 ? (
-              filteredServices.map((service) => (
-                <motion.div key={service._id} variants={itemVariants} className="group relative bg-white rounded-[2rem] shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-300 border border-gray-100 flex flex-col h-full">
-                  <div className="p-8 flex flex-col flex-grow">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center mb-6 border border-indigo-100 group-hover:scale-110 transition-transform">
-                      <span className="text-3xl">{service.category?.icon || '📦'}</span>
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${theme.iconBg} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                      <span className="text-2xl">{service.category?.icon || '📦'}</span>
                     </div>
-                    
-                    <div className="mb-auto">
-                      <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-4 tracking-wide uppercase">
-                        {service.category?.name || 'Standard'}
-                      </span>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{service.name}</h3>
-                      <p className="text-gray-500 text-sm line-clamp-3 leading-relaxed mb-6">{service.description}</p>
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${theme.badge}`}>
+                      {service.category?.name || 'Standard'}
+                    </span>
+                  </div>
+                  
+                  <div className="mb-auto">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1.5 group-hover:text-indigo-600 transition-colors">
+                      {service.name}
+                    </h3>
+                    <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
+                  
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-0.5 font-bold">Starting at</p>
+                      <p className="text-xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                        ₹{service.price}
+                      </p>
                     </div>
-                    
-                    <div className="mt-auto pt-6 border-t border-gray-100 flex items-center justify-between">
-                      <div>
-                          <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Starting at</p>
-                          <p className="text-2xl font-extrabold text-indigo-600 bg-clip-text">₹{service.price}</p>
-                      </div>
-                      <button 
-                        onClick={() => navigate('/user/booking', { state: { selectedService: service } })}
-                        className="bg-gray-900 text-white rounded-2xl p-4 hover:bg-indigo-600 transition-colors shadow-md hover:shadow-xl hover:-translate-y-1"
-                      >
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 group-hover:shadow-lg transition-all group-hover:scale-105">
+                      <span>Book</span>
+                      <ArrowRight size={14} />
                     </div>
                   </div>
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full py-20 flex flex-col items-center justify-center text-center">
-                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6"><Search className="text-gray-300 w-10 h-10" /></div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">No results matched your search</h3>
-                  <p className="text-gray-500">Try adjusting your filters or search terms.</p>
-              </div>
-            )}
-        </motion.div>
-      </div>
+                </div>
+              </motion.div>
+            );
+          })
+        ) : (
+          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
+              <Search size={28} />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-1">No services found</h3>
+            <p className="text-sm text-slate-500">Try adjusting your search terms or category filter.</p>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 };
