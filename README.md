@@ -16,10 +16,10 @@ The project was built as a Backend Developer Internship Assignment focused on:
 # Live Demo
 
 ## Frontend
-https://your-frontend.vercel.app
+https://awatani.vercel.app/
 
 ## Backend API
-https://your-backend.onrender.com
+https://awatani.onrender.com
 
 ---
 
