@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Menu, X, LogOut } from 'lucide-react';
+import { AvataniLogo } from './ui/AvataniLogo';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,9 +51,9 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link
               to={user ? (user.role === 'user' ? '/user/home' : `/${user.role}/dashboard`) : '/'}
-              className="text-blue-600 font-bold text-xl"
+              className="inline-flex items-center hover:opacity-90 transition-opacity"
             >
-              Avatani
+              <AvataniLogo size="default" />
             </Link>
           </div>
 

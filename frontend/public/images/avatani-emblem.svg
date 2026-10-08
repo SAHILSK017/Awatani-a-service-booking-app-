@@ -1,52 +1,64 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 72" fill="none">
   <defs>
-    <linearGradient id="favLeftGrad" x1="12" y1="62" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+    <!-- Left ribbon gradient -->
+    <linearGradient id="embLeftGrad" x1="12" y1="62" x2="38" y2="10" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#9333EA" />
       <stop offset="40%" stop-color="#A855F7" />
       <stop offset="80%" stop-color="#C084FC" />
       <stop offset="100%" stop-color="#DDD6FE" />
     </linearGradient>
 
-    <linearGradient id="favFoldGrad" x1="28" y1="36" x2="48" y2="12" gradientUnits="userSpaceOnUse">
+    <!-- Ribbon fold highlight & shadow -->
+    <linearGradient id="embFoldGrad" x1="28" y1="36" x2="48" y2="12" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#2563EB" />
       <stop offset="35%" stop-color="#4F46E5" />
       <stop offset="70%" stop-color="#7C3AED" />
       <stop offset="100%" stop-color="#9333EA" />
     </linearGradient>
 
-    <linearGradient id="favRightGrad" x1="36" y1="10" x2="62" y2="62" gradientUnits="userSpaceOnUse">
+    <!-- Right ribbon descent -->
+    <linearGradient id="embRightGrad" x1="36" y1="10" x2="62" y2="62" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#4F46E5" />
       <stop offset="60%" stop-color="#3730A3" />
       <stop offset="100%" stop-color="#312E81" />
     </linearGradient>
 
-    <linearGradient id="favWindowGrad" x1="32" y1="44" x2="42" y2="58" gradientUnits="userSpaceOnUse">
+    <!-- Window panes gradient -->
+    <linearGradient id="embWindowGrad" x1="32" y1="44" x2="42" y2="58" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#6366F1" />
       <stop offset="100%" stop-color="#4F46E5" />
     </linearGradient>
   </defs>
 
+  <!-- EMBLEM ICON (A + House) -->
   <g transform="translate(4, 2)">
+    <!-- Right leg and apex layer -->
     <path 
       d="M37 9 C37.8 7.8 39.5 7.2 41 8.2 L62 48 C64.5 53 62 59 56.5 60 C53 60.5 49.5 58 48 55 L38.5 35 L33 46 L29 55 C27.5 58 24 60.5 20.5 60 C15 59 12.5 53 15 48 Z" 
-      fill="url(#favRightGrad)" 
+      fill="url(#embRightGrad)" 
     />
 
+    <!-- Apex wrap ribbon -->
     <path 
       d="M17 50 L38 12 C39.5 9.5 42.5 9.2 45 11 L48 13.5 C50.5 15.5 51 18.5 49.5 21 L34 50 Z" 
-      fill="url(#favFoldGrad)" 
+      fill="url(#embFoldGrad)" 
       opacity="0.9"
     />
 
+    <!-- Left sweeping front ribbon -->
     <path 
       d="M15 48 C12.5 53 15 59 20.5 60 C24 60.5 27.5 58 29 55 L43 24 C45 20 44 15 40 13 C36.5 11 33 13 31.5 16 L15 48 Z" 
-      fill="url(#favLeftGrad)" 
+      fill="url(#embLeftGrad)" 
     />
 
-    <!-- Four Window Panes -->
-    <rect x="31.5" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#favWindowGrad)" />
-    <rect x="39" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#favWindowGrad)" />
-    <rect x="31.5" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#favWindowGrad)" />
-    <rect x="39" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#favWindowGrad)" />
+    <!-- Four Window Panes (2x2 Grid) -->
+    <!-- Top-left -->
+    <rect x="31.5" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#embWindowGrad)" />
+    <!-- Top-right -->
+    <rect x="39" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#embWindowGrad)" />
+    <!-- Bottom-left -->
+    <rect x="31.5" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#embWindowGrad)" />
+    <!-- Bottom-right -->
+    <rect x="39" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#embWindowGrad)" />
   </g>
 </svg>

@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" fill="none">
+  <defs>
+    <!-- Left ribbon gradient -->
+    <linearGradient id="avLeftGrad" x1="12" y1="62" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9333EA" />
+      <stop offset="40%" stop-color="#A855F7" />
+      <stop offset="80%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#DDD6FE" />
+    </linearGradient>
+
+    <!-- Ribbon fold highlight & shadow -->
+    <linearGradient id="avFoldGrad" x1="28" y1="36" x2="48" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="35%" stop-color="#4F46E5" />
+      <stop offset="70%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#9333EA" />
+    </linearGradient>
+
+    <!-- Right ribbon descent -->
+    <linearGradient id="avRightGrad" x1="36" y1="10" x2="62" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="60%" stop-color="#3730A3" />
+      <stop offset="100%" stop-color="#312E81" />
+    </linearGradient>
+
+    <!-- Window panes gradient -->
+    <linearGradient id="avWindowGrad" x1="32" y1="44" x2="42" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+  </defs>
+
+  <!-- EMBLEM ICON (A + House) -->
+  <g transform="translate(4, 2)">
+    <!-- Right leg and apex layer -->
+    <path 
+      d="M37 9 C37.8 7.8 39.5 7.2 41 8.2 L62 48 C64.5 53 62 59 56.5 60 C53 60.5 49.5 58 48 55 L38.5 35 L33 46 L29 55 C27.5 58 24 60.5 20.5 60 C15 59 12.5 53 15 48 Z" 
+      fill="url(#avRightGrad)" 
+    />
+
+    <!-- Apex wrap ribbon -->
+    <path 
+      d="M17 50 L38 12 C39.5 9.5 42.5 9.2 45 11 L48 13.5 C50.5 15.5 51 18.5 49.5 21 L34 50 Z" 
+      fill="url(#avFoldGrad)" 
+      opacity="0.9"
+    />
+
+    <!-- Left sweeping front ribbon -->
+    <path 
+      d="M15 48 C12.5 53 15 59 20.5 60 C24 60.5 27.5 58 29 55 L43 24 C45 20 44 15 40 13 C36.5 11 33 13 31.5 16 L15 48 Z" 
+      fill="url(#avLeftGrad)" 
+    />
+
+    <!-- Four Window Panes (2x2 Grid) -->
+    <!-- Top-left -->
+    <rect x="31.5" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#avWindowGrad)" />
+    <!-- Top-right -->
+    <rect x="39" y="42" width="5.5" height="5.5" rx="1.5" fill="url(#avWindowGrad)" />
+    <!-- Bottom-left -->
+    <rect x="31.5" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#avWindowGrad)" />
+    <!-- Bottom-right -->
+    <rect x="39" y="49.5" width="5.5" height="5.5" rx="1.5" fill="url(#avWindowGrad)" />
+  </g>
+
+  <!-- LOGO TEXT: "Avatani" -->
+  <g transform="translate(86, 0)">
+    <text 
+      x="0" 
+      y="43" 
+      font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+      font-size="34" 
+      font-weight="900" 
+      letter-spacing="-0.03em"
+      fill="#111827"
+    >
+      Avatan<tspan fill="#111827">ı</tspan>
+    </text>
+    
+    <!-- Purple Dot on 'i' -->
+    <circle cx="127" cy="22" r="3.8" fill="#7C3AED" />
+  </g>
+
+  <!-- SUBTITLE: "— SERVICES —" -->
+  <g transform="translate(86, 55)">
+    <!-- Left dash line -->
+    <line x1="2" y1="-3" x2="22" y2="-3" stroke="#475569" stroke-width="1.2" stroke-linecap="round" />
+    
+    <!-- SERVICES text -->
+    <text 
+      x="28" 
+      y="0" 
+      font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+      font-size="9" 
+      font-weight="700" 
+      letter-spacing="0.34em" 
+      fill="#334155"
+    >
+      SERVICES
+    </text>
+    
+    <!-- Right dash line -->
+    <line x1="108" y1="-3" x2="128" y2="-3" stroke="#475569" stroke-width="1.2" stroke-linecap="round" />
+  </g>
+</svg>

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../utils/helpers';
 import { Avatar } from '../admin/Avatar';
+import { AvataniLogo } from '../ui/AvataniLogo';
 
 const userMenu = [
   { name: 'Dashboard', path: '/user/home', icon: LayoutGrid },
@@ -112,23 +113,13 @@ export const Sidebar = ({ role, user }) => {
           >
             {/* Top Brand Header */}
             <div>
-              <div className="px-5 h-16 flex items-center justify-between border-b border-[#E2E8F0]/70 shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#5B3DF5] to-[#7B5CFA] flex items-center justify-center text-white shadow-sm shadow-[#5B3DF5]/30 shrink-0">
-                    <Hexagon className="w-5 h-5 fill-white/20" strokeWidth={2} />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[17px] font-black tracking-tight text-[#111827] leading-none">
-                      Avatani
-                    </span>
-                    <span className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-widest mt-0.5">
-                      Services
-                    </span>
-                  </div>
+              <div className="px-4.5 h-16 flex items-center justify-between border-b border-[#E2E8F0]/70 shrink-0">
+                <div className="flex items-center min-w-0">
+                  <AvataniLogo size="default" />
                 </div>
                 <span
                   className={cn(
-                    'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0',
+                    'ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0',
                     roleBadgeStyles[role] || roleBadgeStyles.user
                   )}
                 >
