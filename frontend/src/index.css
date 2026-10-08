@@ -6,39 +6,39 @@
 
 @layer base {
   :root {
-    --background: #f8fafc; /* neutral off-white/light gray */
-    --foreground: #0f172a; /* deep navy/charcoal */
+    --background: #F8FAFC;
+    --foreground: #111827;
     
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --ring: #7c3aed;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #5B3DF5;
     
-    --primary: #7c3aed; /* Existing brand purple / slightly modernized */
+    --primary: #5B3DF5;
     --primary-foreground: #ffffff;
-    --primary-hover: #6d28d9;
+    --primary-hover: #4C2FE0;
     
-    --secondary: #f1f5f9;
-    --secondary-foreground: #0f172a;
+    --secondary: #F1F5F9;
+    --secondary-foreground: #111827;
     
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
     
-    --accent: #f8fafc;
-    --accent-foreground: #0f172a;
+    --accent: #F8FAFC;
+    --accent-foreground: #111827;
     
-    --success: #16a34a; /* Green */
+    --success: #10B981;
     --success-foreground: #ffffff;
     
-    --warning: #d97706; /* Amber */
+    --warning: #F59E0B;
     --warning-foreground: #ffffff;
     
-    --danger: #dc2626; /* Red */
+    --danger: #EF4444;
     --danger-foreground: #ffffff;
     
-    --info: #2563eb; /* Blue */
+    --info: #3B82F6;
     --info-foreground: #ffffff;
     
-    --radius: 0.75rem; /* ~12px for cards */
+    --radius: 0.875rem;
   }
 }
 

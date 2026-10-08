@@ -1,25 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { Badge } from '../../components/ui/Badge';
-import { UserX, Loader2, Plus, Edit2, Eye, X, Mail, User, Shield, Search, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  UserX,
+  Loader2,
+  Plus,
+  Edit2,
+  Eye,
+  Mail,
+  User,
+  Shield,
+  Search,
+  Lock,
+  Users,
+} from 'lucide-react';
 import { getAllUsers, createUser, updateUser, deleteUser } from '../../services/adminService';
+import { formatDate, cn } from '../../utils/helpers';
+import { Avatar } from '../../components/admin/Avatar';
+import { Tooltip } from '../../components/admin/Tooltip';
+import { AdminToast } from '../../components/admin/AdminToast';
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader';
+import { AdminModal } from '../../components/admin/AdminModal';
+
+const fieldClass =
+  'w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] bg-white text-sm text-[#111827] font-medium placeholder:text-[#94A3B8] focus:border-[#5B3DF5] focus:outline-none focus:ring-2 focus:ring-[#5B3DF5]/15 transition-shadow';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Modal States
   const [selectedUser, setSelectedUser] = useState(null);
   const [editUser, setEditUser] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
 
-  // Form States
   const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', role: 'user' });
   const [editForm, setEditForm] = useState({ name: '', email: '', password: '', role: 'user' });
   const [formLoading, setFormLoading] = useState(false);
-
-  // Premium Toast Notification State
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   const showToast = (message, type = 'success') => {
@@ -30,7 +47,7 @@ const ManageUsers = () => {
   const fetchUsers = async () => {
     try {
       const data = await getAllUsers();
-      setUsers(data.filter(u => u.role === 'user'));
+      setUsers(data.filter((u) => u.role === 'user'));
     } catch (err) {
       console.error(err);
     } finally {
@@ -87,7 +104,6 @@ const ManageUsers = () => {
     }
   };
 
-  // Filter users based on search
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -96,414 +112,449 @@ const ManageUsers = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <Loader2 className="animate-spin text-indigo-600 h-10 w-10" />
+      <div className="flex justify-center items-center h-[60vh]">
+        <Loader2 className="animate-spin text-[#5B3DF5] h-8 w-8" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
-      
-      {/* Floating Premium Toast Notification */}
-      {toast.show && (
-        <div className={`fixed top-6 right-6 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl transition-all duration-500 animate-fade-in ${
-          toast.type === 'success' 
-            ? 'bg-emerald-50/95 border-emerald-200 text-emerald-800' 
-            : 'bg-rose-50/95 border-rose-200 text-rose-800'
-        }`}>
-          <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
-            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
-          }`}>
-            {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-          </div>
-          <span className="font-bold text-sm tracking-wide">{toast.message}</span>
-        </div>
-      )}
+    <div className="w-full space-y-6 pb-10">
+      <AdminToast toast={toast} />
 
-      {/* Premium Header */}
-      <div className="relative h-72 w-full bg-slate-900 overflow-hidden flex items-center justify-center mb-10 shadow-lg">
-        <div className="absolute inset-0">
-          <img
-            src="/customer_hero.png"
-            alt="Premium Header"
-            className="w-full h-full object-cover opacity-50 mix-blend-overlay filter blur-[2px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-transparent to-indigo-900/60" />
-        </div>
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 text-left pt-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Manage Customers</h1>
-            <p className="text-indigo-900 font-medium">View and manage registered customer accounts.</p>
-          </div>
-          <button
+      <AdminPageHeader
+        badge="Customer Management"
+        icon={Users}
+        title="Manage Users"
+        description="View, create, and manage registered customer accounts."
+        action={
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.98 }}
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform active:scale-95"
+            className="inline-flex items-center gap-2 bg-[#5B3DF5] hover:bg-[#4C2FE0] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors"
           >
-            <Plus size={20} />
-            Add Customer
-          </button>
-        </div>
-      </div>
+            <Plus size={16} />
+            Add User
+          </motion.button>
+        }
+      />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20 -mt-16">
-        
-        {/* Search Bar */}
-        <div className="mb-6 max-w-md bg-white rounded-2xl border border-gray-200 shadow-md p-2 flex items-center gap-3">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-            <Search size={20} />
-          </div>
+      {/* Toolbar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      >
+        <div className="flex items-center gap-2.5 h-10 px-3.5 rounded-xl border border-[#E2E8F0] bg-white shadow-sm max-w-md w-full">
+          <Search size={16} className="text-[#94A3B8] shrink-0" />
           <input
             type="text"
             placeholder="Search by name or email..."
-            className="w-full bg-transparent border-none outline-none font-medium text-sm text-gray-700 placeholder-gray-400"
+            className="w-full bg-transparent border-none outline-none text-sm font-medium text-[#1E293B] placeholder:text-[#94A3B8]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <p className="text-xs text-[#64748B]">
+          <span className="font-semibold text-[#111827]">{filteredUsers.length}</span> of {users.length} users
+        </p>
+      </motion.div>
 
-        {/* User Database Card */}
-        <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest border-b border-gray-100 font-bold">
-                <tr>
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Joined Date</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 bg-white">
-                {filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50 transition-colors font-medium">
-                    <td className="px-6 py-5">
-                      <div className="text-gray-900 font-bold text-lg">{user.name}</div>
-                      <div className="text-gray-500 text-sm mt-1">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-5 text-gray-500">
-                      {new Date(user.createdAt || Date.now()).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-5">
-                      <Badge variant="success" className="bg-emerald-100 text-emerald-700 shadow-sm px-3 py-1 font-bold">
-                        Active
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-5 text-right flex justify-end gap-2">
-                      <button
-                        onClick={() => setSelectedUser(user)}
-                        className="p-3 text-indigo-500 hover:text-white bg-indigo-50 hover:bg-indigo-500 rounded-2xl transition-colors shadow-sm"
-                        title="View User"
-                      >
-                        <Eye size={20} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditUser(user);
-                          setEditForm({ name: user.name, email: user.email, role: user.role, password: '' });
-                        }}
-                        className="p-3 text-amber-500 hover:text-white bg-amber-50 hover:bg-amber-500 rounded-2xl transition-colors shadow-sm"
-                        title="Edit User"
-                      >
-                        <Edit2 size={20} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirmUser(user)}
-                        className="p-3 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-2xl transition-colors shadow-sm"
-                        title="Delete User"
-                      >
-                        <UserX size={20} />
-                      </button>
-                    </td>
-                  </tr>
+      {/* Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden"
+      >
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]/80">
+                {['User', 'Email', 'Joined', 'Status', 'Action'].map((h) => (
+                  <th
+                    key={h}
+                    className={cn(
+                      'px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]',
+                      h === 'Action' && 'text-right'
+                    )}
+                  >
+                    {h}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-            {filteredUsers.length === 0 && (
-              <div className="p-12 text-center text-gray-500 font-bold text-lg">
-                No customers found matching the filter.
-              </div>
-            )}
-          </div>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user, idx) => (
+                <motion.tr
+                  key={user._id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.03, 0.3) }}
+                  className="border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8FAFC] transition-colors duration-150"
+                >
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={user.name} size="sm" />
+                      <span className="font-medium text-[#111827]">{user.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-[#64748B]">{user.email}</td>
+                  <td className="px-5 py-3.5 text-[#64748B] text-xs">
+                    {formatDate(user.createdAt) || '—'}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#10B981] bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                      Active
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex justify-end gap-1">
+                      <Tooltip content="View details">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedUser(user)}
+                          className="p-2 rounded-lg text-[#64748B] hover:text-[#5B3DF5] hover:bg-[#EEF2FF] transition-colors"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Edit user">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditUser(user);
+                            setEditForm({
+                              name: user.name,
+                              email: user.email,
+                              role: user.role,
+                              password: '',
+                            });
+                          }}
+                          className="p-2 rounded-lg text-[#64748B] hover:text-[#F59E0B] hover:bg-amber-50 transition-colors"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Delete user">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteConfirmUser(user)}
+                          className="p-2 rounded-lg text-[#64748B] hover:text-[#EF4444] hover:bg-rose-50 transition-colors"
+                        >
+                          <UserX size={16} />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      {/* CREATE MODAL */}
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h3 className="text-xl font-extrabold text-gray-900">Add New Customer</h3>
-              <button onClick={() => setIsCreateOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleCreateUser} className="p-8 space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Name</label>
-                <div className="relative flex items-center">
-                  <User className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    placeholder="John Doe"
-                    value={createForm.name}
-                    onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-[#E2E8F0]">
+          {filteredUsers.map((user) => (
+            <div key={user._id} className="p-4 flex items-start gap-3">
+              <Avatar name={user.name} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-[#111827] truncate">{user.name}</p>
+                <p className="text-xs text-[#64748B] truncate mt-0.5">{user.email}</p>
+                <div className="flex items-center gap-3 mt-2 text-[11px] text-[#64748B]">
+                  <span className="inline-flex items-center gap-1 text-[#10B981] font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" /> Active
+                  </span>
+                  <span>{formatDate(user.createdAt) || '—'}</span>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Email Address</label>
-                <div className="relative flex items-center">
-                  <Mail className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="email"
-                    required
-                    placeholder="john@example.com"
-                    value={createForm.email}
-                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Password</label>
-                <div className="relative flex items-center">
-                  <Lock className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={createForm.password}
-                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Role</label>
-                <div className="relative flex items-center">
-                  <Shield className="absolute left-4 text-gray-400" size={18} />
-                  <select
-                    value={createForm.role}
-                    onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-bold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                <div className="flex gap-1 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedUser(user)}
+                    className="p-2 rounded-lg text-[#64748B] hover:bg-[#F8FAFC]"
                   >
-                    <option value="user">User</option>
-                    <option value="worker">Worker</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateOpen(false)}
-                  className="w-1/2 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="w-1/2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/20 flex items-center justify-center transition-all duration-300"
-                >
-                  {formLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Create Customer'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* VIEW DETAILS MODAL */}
-      {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h3 className="text-xl font-extrabold text-gray-900">Customer Details</h3>
-              <button onClick={() => setSelectedUser(null)} className="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-8 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 bg-gradient-to-tr from-indigo-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-md">
-                  {selectedUser.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h4 className="text-2xl font-black text-gray-900">{selectedUser.name}</h4>
-                  <Badge variant="indigo" className="mt-1 font-bold uppercase tracking-wider">{selectedUser.role}</Badge>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-100 py-6">
-                <div>
-                  <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block">Email Address</span>
-                  <span className="text-gray-900 font-semibold">{selectedUser.email}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block">Account Status</span>
-                  <Badge variant="success" className="bg-emerald-100 text-emerald-700 shadow-sm mt-1 px-3 py-1 font-bold">Active</Badge>
-                </div>
-                <div className="mt-4">
-                  <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block">Joined Date</span>
-                  <span className="text-gray-950 font-semibold">{new Date(selectedUser.createdAt).toLocaleDateString()}</span>
-                </div>
-                <div className="mt-4">
-                  <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block">User ID</span>
-                  <span className="text-xs font-mono text-gray-400 select-all">{selectedUser._id}</span>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => {
-                    setSelectedUser(null);
-                    setEditUser(selectedUser);
-                    setEditForm({ name: selectedUser.name, email: selectedUser.email, role: selectedUser.role, password: '' });
-                  }}
-                  className="w-1/2 py-4 bg-amber-50 hover:bg-amber-500 text-amber-600 hover:text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 border border-amber-200"
-                >
-                  <Edit2 size={18} />
-                  Edit Details
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedUser(null);
-                    setDeleteConfirmUser(selectedUser);
-                  }}
-                  className="w-1/2 py-4 bg-red-50 hover:bg-red-500 text-red-600 hover:text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 border border-red-200"
-                >
-                  <UserX size={18} />
-                  Delete User
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* EDIT MODAL */}
-      {editUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h3 className="text-xl font-extrabold text-gray-900">Edit Customer</h3>
-              <button onClick={() => setEditUser(null)} className="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleUpdateUser} className="p-8 space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Name</label>
-                <div className="relative flex items-center">
-                  <User className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Email Address</label>
-                <div className="relative flex items-center">
-                  <Mail className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="email"
-                    required
-                    value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Update Password (Leave blank to keep existing)</label>
-                <div className="relative flex items-center">
-                  <Lock className="absolute left-4 text-gray-400" size={18} />
-                  <input
-                    type="password"
-                    placeholder="New password (optional)"
-                    value={editForm.password}
-                    onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Role</label>
-                <div className="relative flex items-center">
-                  <Shield className="absolute left-4 text-gray-400" size={18} />
-                  <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 font-bold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditUser(user);
+                      setEditForm({
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                        password: '',
+                      });
+                    }}
+                    className="p-2 rounded-lg text-[#64748B] hover:bg-[#F8FAFC]"
                   >
-                    <option value="user">User</option>
-                    <option value="worker">Worker</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmUser(user)}
+                    className="p-2 rounded-lg text-[#64748B] hover:bg-[#F8FAFC]"
+                  >
+                    <UserX size={16} />
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setEditUser(null)}
-                  className="w-1/2 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="w-1/2 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-bold shadow-lg shadow-amber-500/20 flex items-center justify-center transition-all duration-300"
-                >
-                  {formLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
+            </div>
+          ))}
         </div>
-      )}
 
-      {/* DELETE CONFIRMATION MODAL */}
-      {deleteConfirmUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 p-8 space-y-6 transform transition-all duration-300">
-            <div className="h-16 w-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-inner">
-              <UserX size={28} />
+        {filteredUsers.length === 0 && (
+          <div className="px-5 py-14 text-center">
+            <p className="text-sm font-medium text-[#111827]">No users found</p>
+            <p className="text-xs text-[#64748B] mt-1">Try a different search or add a new user.</p>
+          </div>
+        )}
+      </motion.div>
+
+      {/* CREATE */}
+      <AdminModal open={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Add New User">
+        <form onSubmit={handleCreateUser} className="p-5 sm:p-6 space-y-4">
+          {[
+            { label: 'Name', icon: User, key: 'name', type: 'text', placeholder: 'John Doe' },
+            { label: 'Email', icon: Mail, key: 'email', type: 'email', placeholder: 'john@example.com' },
+            { label: 'Password', icon: Lock, key: 'password', type: 'password', placeholder: '••••••••' },
+          ].map((f) => (
+            <div key={f.key} className="space-y-1.5">
+              <label className="text-xs font-medium text-[#64748B]">{f.label}</label>
+              <div className="relative flex items-center">
+                <f.icon className="absolute left-3.5 text-[#94A3B8]" size={16} />
+                <input
+                  type={f.type}
+                  required
+                  placeholder={f.placeholder}
+                  value={createForm[f.key]}
+                  onChange={(e) => setCreateForm({ ...createForm, [f.key]: e.target.value })}
+                  className={fieldClass}
+                />
+              </div>
             </div>
-            <div className="text-center">
-              <h3 className="text-2xl font-black text-gray-900">Delete Account</h3>
-              <p className="text-gray-500 mt-2">
-                Are you absolutely sure you want to permanently delete user <strong className="text-gray-900 font-bold">{deleteConfirmUser.name}</strong>? This action is irreversible.
-              </p>
+          ))}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#64748B]">Role</label>
+            <div className="relative flex items-center">
+              <Shield className="absolute left-3.5 text-[#94A3B8]" size={16} />
+              <select
+                value={createForm.role}
+                onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                className={fieldClass}
+              >
+                <option value="user">User</option>
+                <option value="worker">Worker</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
-            <div className="flex gap-4 pt-2">
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsCreateOpen(false)}
+              className="flex-1 py-2.5 border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="flex-1 py-2.5 bg-[#5B3DF5] hover:bg-[#4C2FE0] text-white rounded-xl text-sm font-semibold flex items-center justify-center transition-colors disabled:opacity-50"
+            >
+              {formLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Create User'}
+            </button>
+          </div>
+        </form>
+      </AdminModal>
+
+      {/* VIEW */}
+      <AdminModal open={!!selectedUser} onClose={() => setSelectedUser(null)} title="User Details">
+        {selectedUser && (
+          <div className="p-5 sm:p-6 space-y-5">
+            <div className="flex items-center gap-3">
+              <Avatar name={selectedUser.name} size="lg" />
+              <div>
+                <h4 className="text-lg font-semibold text-[#111827]">{selectedUser.name}</h4>
+                <span className="inline-flex mt-1 px-2 py-0.5 rounded-md text-[11px] font-semibold capitalize bg-[#EEF2FF] text-[#5B3DF5] border border-[#E0E7FF]">
+                  {selectedUser.role}
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 border-t border-b border-[#E2E8F0] py-4">
+              <div>
+                <span className="text-[11px] text-[#94A3B8] font-medium block mb-1">Email</span>
+                <span className="text-sm font-medium text-[#111827] break-all">{selectedUser.email}</span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#94A3B8] font-medium block mb-1">Status</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#10B981]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" /> Active
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#94A3B8] font-medium block mb-1">Joined</span>
+                <span className="text-sm font-medium text-[#111827]">
+                  {formatDate(selectedUser.createdAt) || '—'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] text-[#94A3B8] font-medium block mb-1">User ID</span>
+                <span className="text-[11px] font-mono text-[#94A3B8] break-all select-all">
+                  {selectedUser._id}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedUser(null);
+                  setEditUser(selectedUser);
+                  setEditForm({
+                    name: selectedUser.name,
+                    email: selectedUser.email,
+                    role: selectedUser.role,
+                    password: '',
+                  });
+                }}
+                className="flex-1 py-2.5 border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#1E293B] hover:bg-[#F8FAFC] flex items-center justify-center gap-2 transition-colors"
+              >
+                <Edit2 size={15} /> Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedUser(null);
+                  setDeleteConfirmUser(selectedUser);
+                }}
+                className="flex-1 py-2.5 border border-rose-200 bg-rose-50 rounded-xl text-sm font-semibold text-[#EF4444] hover:bg-rose-100 flex items-center justify-center gap-2 transition-colors"
+              >
+                <UserX size={15} /> Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </AdminModal>
+
+      {/* EDIT */}
+      <AdminModal open={!!editUser} onClose={() => setEditUser(null)} title="Edit User">
+        <form onSubmit={handleUpdateUser} className="p-5 sm:p-6 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#64748B]">Name</label>
+            <div className="relative flex items-center">
+              <User className="absolute left-3.5 text-[#94A3B8]" size={16} />
+              <input
+                type="text"
+                required
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#64748B]">Email</label>
+            <div className="relative flex items-center">
+              <Mail className="absolute left-3.5 text-[#94A3B8]" size={16} />
+              <input
+                type="email"
+                required
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#64748B]">
+              Password <span className="text-[#94A3B8] font-normal">(optional)</span>
+            </label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3.5 text-[#94A3B8]" size={16} />
+              <input
+                type="password"
+                placeholder="Leave blank to keep current"
+                value={editForm.password}
+                onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                className={fieldClass}
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#64748B]">Role</label>
+            <div className="relative flex items-center">
+              <Shield className="absolute left-3.5 text-[#94A3B8]" size={16} />
+              <select
+                value={editForm.role}
+                onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                className={fieldClass}
+              >
+                <option value="user">User</option>
+                <option value="worker">Worker</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setEditUser(null)}
+              className="flex-1 py-2.5 border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="flex-1 py-2.5 bg-[#5B3DF5] hover:bg-[#4C2FE0] text-white rounded-xl text-sm font-semibold flex items-center justify-center transition-colors disabled:opacity-50"
+            >
+              {formLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </AdminModal>
+
+      {/* DELETE */}
+      <AdminModal
+        open={!!deleteConfirmUser}
+        onClose={() => setDeleteConfirmUser(null)}
+        title="Delete User"
+        maxWidth="max-w-md"
+      >
+        {deleteConfirmUser && (
+          <div className="p-5 sm:p-6 space-y-5">
+            <div className="h-12 w-12 bg-rose-50 text-[#EF4444] rounded-xl flex items-center justify-center mx-auto border border-rose-100">
+              <UserX size={22} />
+            </div>
+            <p className="text-sm text-[#64748B] text-center leading-relaxed">
+              Permanently delete{' '}
+              <strong className="text-[#111827] font-semibold">{deleteConfirmUser.name}</strong>? This
+              cannot be undone.
+            </p>
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setDeleteConfirmUser(null)}
-                className="w-1/2 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
+                className="flex-1 py-2.5 border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
               >
-                Keep Account
+                Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleDeleteUser(deleteConfirmUser._id)}
                 disabled={formLoading}
-                className="w-1/2 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 flex items-center justify-center transition-all duration-300"
+                className="flex-1 py-2.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center transition-colors disabled:opacity-50"
               >
-                {formLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Yes, Delete'}
+                {formLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Delete'}
               </button>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
+      </AdminModal>
     </div>
   );
 };

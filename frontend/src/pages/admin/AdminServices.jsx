@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Badge } from '../../components/ui/Badge';
-import { PlusCircle, Tag, AlignLeft, IndianRupee, LayoutList, Loader2, Info, Activity, Trash2, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  PlusCircle,
+  Tag,
+  AlignLeft,
+  IndianRupee,
+  LayoutList,
+  Loader2,
+  Info,
+  Activity,
+  Trash2,
+  Search,
+} from 'lucide-react';
 import { addCategory, addService, getCategories, getServices, deleteService } from '../../services/categoryService';
+import { formatPrice, cn } from '../../utils/helpers';
+import { AdminToast } from '../../components/admin/AdminToast';
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader';
+import { AdminModal } from '../../components/admin/AdminModal';
+import { Tooltip } from '../../components/admin/Tooltip';
+
+const fieldClass =
+  'w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] bg-white text-sm text-[#111827] font-medium placeholder:text-[#94A3B8] focus:border-[#5B3DF5] focus:outline-none focus:ring-2 focus:ring-[#5B3DF5]/15 transition-shadow';
 
 const AdminServices = () => {
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [catName, setCatName] = useState('');
   const [catIcon, setCatIcon] = useState('🧹');
@@ -18,11 +35,7 @@ const AdminServices = () => {
   const [servPrice, setServPrice] = useState('');
   const [servCategory, setServCategory] = useState('');
   const [formLoading, setFormLoading] = useState(false);
-
-  // Deletion Modal state
   const [deleteConfirmService, setDeleteConfirmService] = useState(null);
-
-  // Premium Toast Notification State
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   const showToast = (message, type = 'success') => {
@@ -34,42 +47,54 @@ const AdminServices = () => {
     try {
       setLoading(true);
       const [catsData, servsData] = await Promise.all([getCategories(), getServices()]);
-      setCategories(catsData); setServices(servsData);
+      setCategories(catsData);
+      setServices(servsData);
       if (catsData.length > 0 && !servCategory) setServCategory(catsData[0]._id);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchContent(); }, []);
+  useEffect(() => {
+    fetchContent();
+  }, []);
 
   const handleAddCategory = async (e) => {
-    e.preventDefault(); setFormLoading(true);
-    try { 
-      await addCategory({ name: catName, icon: catIcon }); 
-      setCatName(''); 
-      showToast("Category added successfully!", "success"); 
-      fetchContent(); 
-    } 
-    catch (err) { 
-      showToast(err.response?.data?.message || 'Failed to add category', 'error'); 
-    } finally { 
-      setFormLoading(false); 
+    e.preventDefault();
+    setFormLoading(true);
+    try {
+      await addCategory({ name: catName, icon: catIcon });
+      setCatName('');
+      showToast('Category added successfully!', 'success');
+      fetchContent();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to add category', 'error');
+    } finally {
+      setFormLoading(false);
     }
   };
 
   const handleAddService = async (e) => {
-    e.preventDefault(); setFormLoading(true);
-    try { 
-      await addService({ name: servName, description: servDesc, price: Number(servPrice), category: servCategory }); 
-      setServName(''); 
-      setServDesc(''); 
-      setServPrice(''); 
-      showToast("Service added successfully!", "success"); 
-      fetchContent(); 
-    } 
-    catch (err) { 
-      showToast(err.response?.data?.message || 'Failed to add service', 'error'); 
-    } finally { 
-      setFormLoading(false); 
+    e.preventDefault();
+    setFormLoading(true);
+    try {
+      await addService({
+        name: servName,
+        description: servDesc,
+        price: Number(servPrice),
+        category: servCategory,
+      });
+      setServName('');
+      setServDesc('');
+      setServPrice('');
+      showToast('Service added successfully!', 'success');
+      fetchContent();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to add service', 'error');
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -78,7 +103,7 @@ const AdminServices = () => {
     try {
       await deleteService(id);
       setDeleteConfirmService(null);
-      showToast("Service deleted successfully!", "success");
+      showToast('Service deleted successfully!', 'success');
       fetchContent();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to delete service', 'error');
@@ -87,175 +112,316 @@ const AdminServices = () => {
     }
   };
 
-  if (loading && categories.length === 0) return <div className="flex justify-center items-center h-screen bg-gray-50"><Loader2 className="animate-spin text-indigo-600 h-10 w-10" /></div>;
+  const filteredServices = services.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.category?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading && categories.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <Loader2 className="animate-spin text-[#5B3DF5] h-8 w-8" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
-      
-      {/* Floating Premium Toast Notification */}
-      {toast.show && (
-        <div className={`fixed top-6 right-6 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl transition-all duration-500 animate-fade-in ${
-          toast.type === 'success' 
-            ? 'bg-emerald-50/95 border-emerald-200 text-emerald-800' 
-            : 'bg-rose-50/95 border-rose-200 text-rose-800'
-        }`}>
-          <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
-            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
-          }`}>
-            {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+    <div className="w-full space-y-6 pb-10">
+      <AdminToast toast={toast} />
+
+      <AdminPageHeader
+        badge="Catalog"
+        icon={Activity}
+        title="Services"
+        description="Configure categories and publish services available on the platform."
+      />
+
+      {/* Forms */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden"
+        >
+          <div className="px-5 sm:px-6 py-4 border-b border-[#E2E8F0]">
+            <h3 className="text-base font-semibold text-[#111827] flex items-center gap-2">
+              <Tag size={16} className="text-[#5B3DF5]" />
+              Add Category
+            </h3>
+            <p className="text-xs text-[#64748B] mt-0.5">Group services under a shared category</p>
           </div>
-          <span className="font-bold text-sm tracking-wide">{toast.message}</span>
-        </div>
-      )}
+          <form onSubmit={handleAddCategory} className="p-5 sm:p-6 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#64748B]">Category name</label>
+              <div className="relative">
+                <LayoutList size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <input
+                  required
+                  placeholder="e.g. Home Cleaning"
+                  value={catName}
+                  onChange={(e) => setCatName(e.target.value)}
+                  className={cn(fieldClass, 'pl-10')}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#64748B]">Icon / emoji</label>
+              <div className="relative">
+                <Info size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <input
+                  required
+                  placeholder="🧹"
+                  value={catIcon}
+                  onChange={(e) => setCatIcon(e.target.value)}
+                  className={cn(fieldClass, 'pl-10')}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#5B3DF5] hover:bg-[#4C2FE0] text-white text-sm font-semibold transition-colors disabled:opacity-50 active:scale-[0.98]"
+            >
+              {formLoading ? (
+                <Loader2 className="animate-spin h-4 w-4" />
+              ) : (
+                <>
+                  <PlusCircle size={16} /> Add Category
+                </>
+              )}
+            </button>
+          </form>
+        </motion.section>
 
-      {/* Light Header */}
-      <div className="relative h-72 w-full bg-slate-900 overflow-hidden flex items-center justify-center mb-10 shadow-lg">
-        <div className="absolute inset-0">
-          <img src="/customer_hero.png" alt="Premium Header" className="w-full h-full object-cover opacity-50 mix-blend-overlay filter blur-[2px]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-transparent to-indigo-900/60" />
-        </div>
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 text-left pt-10">
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Service Provisioning</h1>
-            <p className="text-indigo-900 font-medium">Configure categories and deploy operational service directives.</p>
-        </div>
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden"
+        >
+          <div className="px-5 sm:px-6 py-4 border-b border-[#E2E8F0]">
+            <h3 className="text-base font-semibold text-[#111827] flex items-center gap-2">
+              <PlusCircle size={16} className="text-[#5B3DF5]" />
+              Add Service
+            </h3>
+            <p className="text-xs text-[#64748B] mt-0.5">Publish a bookable service offering</p>
+          </div>
+          <form onSubmit={handleAddService} className="p-5 sm:p-6 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-[#64748B]">Service name</label>
+                <div className="relative">
+                  <Tag size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                  <input
+                    required
+                    placeholder="Standard Cleaning"
+                    value={servName}
+                    onChange={(e) => setServName(e.target.value)}
+                    className={cn(fieldClass, 'pl-10')}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-[#64748B]">Base price (₹)</label>
+                <div className="relative">
+                  <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                  <input
+                    required
+                    type="number"
+                    placeholder="500"
+                    value={servPrice}
+                    onChange={(e) => setServPrice(e.target.value)}
+                    className={cn(fieldClass, 'pl-10')}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#64748B]">Category</label>
+              <select
+                className={fieldClass}
+                value={servCategory}
+                onChange={(e) => setServCategory(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.icon} {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#64748B]">Description</label>
+              <div className="relative">
+                <AlignLeft size={15} className="absolute left-3.5 top-3 text-[#94A3B8]" />
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="What this service includes..."
+                  value={servDesc}
+                  onChange={(e) => setServDesc(e.target.value)}
+                  className={cn(fieldClass, 'pl-10 resize-none')}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={formLoading || categories.length === 0}
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#111827] hover:bg-black text-white text-sm font-semibold transition-colors disabled:opacity-50 active:scale-[0.98]"
+            >
+              {formLoading ? (
+                <Loader2 className="animate-spin h-4 w-4" />
+              ) : (
+                <>
+                  <PlusCircle size={16} /> Publish Service
+                </>
+              )}
+            </button>
+          </form>
+        </motion.section>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20 -mt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            
-            <motion.div initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} transition={{delay:0.1}} className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="px-8 py-6 border-b border-gray-100 bg-white/50">
-                    <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-3"><Tag className="text-indigo-600" /> Construct Category</h3>
-                </div>
-                <div className="p-8">
-                    <form onSubmit={handleAddCategory} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Category Name</label>
-                            <Input icon={LayoutList} placeholder="e.g. Home Cleaning" required value={catName} onChange={(e) => setCatName(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Icon / Emoji</label>
-                            <Input icon={Info} placeholder="🧹" required value={catIcon} onChange={(e) => setCatIcon(e.target.value)} />
-                        </div>
-                        <Button type="submit" className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md p-4 rounded-2xl font-bold" disabled={formLoading}>
-                            {formLoading ? <Loader2 className="animate-spin h-5 w-5 mx-auto" /> : <><PlusCircle size={20} className="mr-2 inline" /> Add Shared Category</>}
-                        </Button>
-                    </form>
-                </div>
-            </motion.div>
-
-            <motion.div initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} transition={{delay:0.2}} className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="px-8 py-6 border-b border-gray-100 bg-white/50">
-                    <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-3"><PlusCircle className="text-purple-600" /> Add New Service</h3>
-                </div>
-                <div className="p-8">
-                    <form onSubmit={handleAddService} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-2 col-span-2 sm:col-span-1">
-                                <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Service Name</label>
-                                <Input icon={Tag} placeholder="Standard Cleaning" required value={servName} onChange={(e)=>setServName(e.target.value)} />
-                            </div>
-                            <div className="space-y-2 col-span-2 sm:col-span-1">
-                                <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Base Price (₹)</label>
-                                <Input icon={IndianRupee} type="number" placeholder="500" required value={servPrice} onChange={(e)=>setServPrice(e.target.value)} />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Attach to Hub Category</label>
-                            <select className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 text-sm font-bold text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm" value={servCategory} onChange={(e) => setServCategory(e.target.value)} required>
-                                <option value="" disabled>Select a Category</option>
-                                {categories.map(c => <option key={c._id} value={c._id}>{c.icon} {c.name}</option>)}
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Description</label>
-                            <textarea required rows="2" placeholder="Description of what the service entails..." value={servDesc} onChange={(e) => setServDesc(e.target.value)} className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 text-sm font-medium text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none shadow-sm" />
-                        </div>
-                        <Button type="submit" className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white shadow-md p-4 rounded-2xl font-bold" disabled={formLoading || categories.length === 0}>
-                            {formLoading ? <Loader2 className="animate-spin h-5 w-5 mx-auto" /> : <><PlusCircle size={20} className="mr-2 inline" /> Publish Service Instance</>}
-                        </Button>
-                    </form>
-                </div>
-            </motion.div>
+      {/* Services list */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden"
+      >
+        <div className="px-5 sm:px-6 py-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-[#111827]">Active Services</h2>
+            <p className="text-xs text-[#64748B] mt-0.5">
+              {filteredServices.length} of {services.length} services
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 h-10 px-3.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] max-w-xs w-full">
+            <Search size={15} className="text-[#94A3B8] shrink-0" />
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent border-none outline-none text-sm font-medium text-[#1E293B] placeholder:text-[#94A3B8]"
+            />
+          </div>
         </div>
 
-        <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.3}}>
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3"><Activity className="text-blue-500" /> Currently Active Services</h2>
-            <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left font-medium">
-                        <thead className="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest border-b border-gray-100 font-bold">
-                            <tr>
-                              <th className="px-6 py-4">Service Details</th>
-                              <th className="px-6 py-4 border-l border-gray-100 hidden sm:table-cell">Hub</th>
-                              <th className="px-6 py-4">Value</th>
-                              <th className="px-6 py-4 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50 bg-white">
-                            {services.map(service => (
-                                <tr key={service._id} className="hover:bg-gray-50/80 transition-colors">
-                                    <td className="px-6 py-5">
-                                        <div className="text-gray-900 font-bold text-lg">{service.name}</div>
-                                        <div className="text-gray-500 text-sm mt-1 w-64 lg:w-96 truncate font-medium">{service.description}</div>
-                                        <Badge variant="indigo" className="sm:hidden mt-3 shadow-sm font-bold">{service.category?.icon} {service.category?.name || 'Null'}</Badge>
-                                    </td>
-                                    <td className="px-6 py-5 border-l border-gray-50 hidden sm:table-cell">
-                                        <Badge variant="indigo" className="truncate max-w-[150px] inline-block shadow-sm font-bold tracking-widest">{service.category?.icon} {service.category?.name || 'Uncategorized'}</Badge>
-                                    </td>
-                                    <td className="px-6 py-5 font-black text-indigo-600 text-xl font-mono">₹{service.price}</td>
-                                    <td className="px-6 py-5 text-right">
-                                      <button 
-                                        onClick={() => setDeleteConfirmService(service)}
-                                        className="p-3 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-2xl transition-all shadow-sm duration-300"
-                                        title="Delete Service"
-                                      >
-                                        <Trash2 size={18} />
-                                      </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {services.length === 0 && <div className="p-12 text-center text-gray-500 font-bold text-lg">No services indexed natively.</div>}
-                </div>
-            </div>
-        </motion.div>
-      </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]/80">
+                {['Service', 'Category', 'Price', 'Action'].map((h) => (
+                  <th
+                    key={h}
+                    className={cn(
+                      'px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]',
+                      h === 'Action' && 'text-right'
+                    )}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredServices.map((service, idx) => (
+                <motion.tr
+                  key={service._id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.03, 0.3) }}
+                  className="border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8FAFC] transition-colors duration-150"
+                >
+                  <td className="px-5 py-3.5">
+                    <p className="font-medium text-[#111827]">{service.name}</p>
+                    <p className="text-xs text-[#64748B] mt-0.5 max-w-md truncate">
+                      {service.description}
+                    </p>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]">
+                      <span>{service.category?.icon}</span>
+                      {service.category?.name || 'Uncategorized'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="text-sm font-semibold text-[#111827]">
+                      {formatPrice(service.price)}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <Tooltip content="Delete service">
+                      <button
+                        type="button"
+                        onClick={() => setDeleteConfirmService(service)}
+                        className="p-2 rounded-lg text-[#64748B] hover:text-[#EF4444] hover:bg-rose-50 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </Tooltip>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* DELETE SERVICE CONFIRMATION MODAL */}
-      {deleteConfirmService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 p-8 space-y-6 transform transition-all duration-300">
-            <div className="h-16 w-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-inner">
-              <Trash2 size={28} />
+        {filteredServices.length === 0 && (
+          <div className="px-5 py-14 text-center">
+            <p className="text-sm font-medium text-[#111827]">No services found</p>
+            <p className="text-xs text-[#64748B] mt-1">
+              {services.length === 0
+                ? 'Create a category, then publish your first service.'
+                : 'Try a different search query.'}
+            </p>
+          </div>
+        )}
+      </motion.section>
+
+      <AdminModal
+        open={!!deleteConfirmService}
+        onClose={() => setDeleteConfirmService(null)}
+        title="Delete Service"
+        maxWidth="max-w-md"
+      >
+        {deleteConfirmService && (
+          <div className="p-5 sm:p-6 space-y-5">
+            <div className="h-12 w-12 bg-rose-50 text-[#EF4444] rounded-xl flex items-center justify-center mx-auto border border-rose-100">
+              <Trash2 size={22} />
             </div>
-            <div className="text-center">
-              <h3 className="text-2xl font-black text-gray-900">Delete Service</h3>
-              <p className="text-gray-500 mt-2">
-                Are you absolutely sure you want to permanently delete service <strong className="text-gray-900 font-bold">{deleteConfirmService.name}</strong>? Clients will no longer be able to select or request this offering.
-              </p>
-            </div>
-            <div className="flex gap-4 pt-2">
+            <p className="text-sm text-[#64748B] text-center leading-relaxed">
+              Permanently delete{' '}
+              <strong className="text-[#111827] font-semibold">{deleteConfirmService.name}</strong>?
+              Customers will no longer be able to book this service.
+            </p>
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setDeleteConfirmService(null)}
-                className="w-1/2 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
+                className="flex-1 py-2.5 border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
               >
-                Keep Service
+                Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleDeleteService(deleteConfirmService._id)}
                 disabled={formLoading}
-                className="w-1/2 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 flex items-center justify-center transition-all duration-300"
+                className="flex-1 py-2.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center transition-colors disabled:opacity-50"
               >
-                {formLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Yes, Delete'}
+                {formLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Delete'}
               </button>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
+      </AdminModal>
     </div>
   );
 };
